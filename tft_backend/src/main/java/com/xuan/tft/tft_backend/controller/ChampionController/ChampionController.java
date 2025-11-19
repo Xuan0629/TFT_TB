@@ -22,8 +22,4 @@ public class ChampionController {
         return championRepository.findAll();
     }
 
-    // 后面可以加：
-    // GET /api/champions/{id}
-    // POST /api/champions
-    // 等等
 }

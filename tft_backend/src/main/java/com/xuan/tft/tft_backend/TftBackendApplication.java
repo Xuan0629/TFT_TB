@@ -9,6 +9,8 @@ import com.xuan.tft.tft_backend.repository.ChampionRepository;
 import com.xuan.tft.tft_backend.repository.TraitRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 public class TftBackendApplication {
@@ -54,5 +56,10 @@ public class TftBackendApplication {
 				championRepository.save(aatrox);
 			}
 		};
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 }

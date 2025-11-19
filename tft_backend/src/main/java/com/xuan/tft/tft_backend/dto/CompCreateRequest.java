@@ -7,14 +7,16 @@ public class CompCreateRequest {
     private String name;
     private String description;
     private List<Long> championIds;
+    private Long userId;
 
     public CompCreateRequest() {
     }
 
-    public CompCreateRequest(String name, String description, List<Long> championIds) {
+    public CompCreateRequest(String name, String description, List<Long> championIds, Long userId) {
         this.name = name;
         this.description = description;
         this.championIds = championIds;
+        this.userId = userId;
     }
 
     public String getName() {
@@ -29,6 +31,10 @@ public class CompCreateRequest {
         return championIds;
     }
 
+    public Long getUserId(){
+        return userId;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -39,5 +45,9 @@ public class CompCreateRequest {
 
     public void setChampionIds(List<Long> championIds) {
         this.championIds = championIds;
+    }
+
+    public void setUserId(Long userId){
+        this.userId = userId;
     }
 }

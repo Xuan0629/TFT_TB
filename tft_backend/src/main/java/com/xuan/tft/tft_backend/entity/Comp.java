@@ -32,6 +32,19 @@ public class Comp {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    // 人气指标：被点赞/收藏次数
+    @Column(nullable = false)
+    private Integer likes = 0;
+
+    // 使用次数（被预览/使用的统计）
+    @Column(nullable = false)
+    private Integer usageCount = 0;
+
+    // 创建该阵容的用户
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User creator;
+
     // 多对多
     @ManyToMany
     @JoinTable(
@@ -111,4 +124,30 @@ public class Comp {
     public void setChampions(Set<Champion> champions) {
         this.champions = champions;
     }
+
+    public Integer getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Integer likes) {
+        this.likes = likes;
+    }
+
+    public Integer getUsageCount() {
+        return usageCount;
+    }
+
+    public void setUsageCount(Integer usageCount) {
+        this.usageCount = usageCount;
+    }
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+
 }
