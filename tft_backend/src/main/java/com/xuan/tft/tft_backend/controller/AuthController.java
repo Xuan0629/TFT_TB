@@ -1,5 +1,6 @@
 package com.xuan.tft.tft_backend.controller;
 
+import com.xuan.tft.tft_backend.dto.AuthResponse;
 import com.xuan.tft.tft_backend.dto.UserLoginRequest;
 import com.xuan.tft.tft_backend.dto.UserRegisterRequest;
 import com.xuan.tft.tft_backend.dto.UserResponseDto;
@@ -23,9 +24,16 @@ public class AuthController {
         return ResponseEntity.ok(user);
     }
 
+//    @PostMapping("/login")
+//    public ResponseEntity<UserResponseDto> login(@RequestBody UserLoginRequest request) {
+//        UserResponseDto user = userService.login(request);
+//        return ResponseEntity.ok(user);
+//    }
+
     @PostMapping("/login")
-    public ResponseEntity<UserResponseDto> login(@RequestBody UserLoginRequest request) {
-        UserResponseDto user = userService.login(request);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<AuthResponse> login(@RequestBody UserLoginRequest request) {
+        var authResponse = userService.login(request);
+        return ResponseEntity.ok(authResponse);
     }
+
 }

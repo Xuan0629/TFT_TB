@@ -11,6 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.xuan.tft.tft_backend.dto.ChampionBasicDto;
 import com.xuan.tft.tft_backend.dto.CompSummaryDto;
 import com.xuan.tft.tft_backend.dto.TraitCountDto;
+import com.xuan.tft.tft_backend.entity.User;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,12 +41,11 @@ public class CompService {
             throw new IllegalArgumentException("阵容中至少需要一个有效的棋子 ID。");
         }
 
-        // 找到创建者用户（JWT相关代码编写后修改）
-        if (request.getUserId() == null) {
-            throw new IllegalArgumentException("创建阵容需要提供 userId");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof User)) {
+            throw new IllegalStateException("当前请求未登录，无法创建阵容");
         }
-        var creator = userService.findById(request.getUserId());
-
+        User creator = (User) auth.getPrincipal();
 
         Map<String, Integer> traitCountMap = countTraits(champions);
         int score = calculateScore(champions, traitCountMap);
