@@ -38,6 +38,7 @@ public class DataImportService {
             throw new IllegalArgumentException("数据文件不存在: classpath:" + classpath);
         }
 
+        // 为避免重复数据，先清空该赛季已存在的 champions 与 traits（级联删除关联表/trait_levels）
         championRepository.deleteBySetName(setName);
         traitRepository.deleteBySetName(setName);
 
@@ -45,6 +46,8 @@ public class DataImportService {
             CdragonParser parser = new CdragonParser(setName);
             CdragonParser.RawSet raw = parser.parseCdragon(is);
 
+            // 1) upsert traits（含 levels）
+            // 先收集所有在 champions 中出现的 trait 名称，确保它们都被导入
             Set<String> allTraitNames = new HashSet<>();
             for (CdragonParser.RawChampion c : raw.champions()) {
                 if (c.traitNames() != null) {
@@ -57,7 +60,7 @@ public class DataImportService {
             }
             
             Map<String, Trait> traitMap = new HashMap<>();
-
+            // 先处理从 traits 数组中解析的 traits
             for (CdragonParser.RawTrait t : raw.traits()) {
                 if (t.name() == null || t.name().isBlank()) continue;
                 
@@ -69,18 +72,20 @@ public class DataImportService {
                             return nt;
                         });
                 db.setDescription(t.description());
-
+                
+                // 去重并保持顺序，避免来源数据重复导致 trait_levels 多次插入
                 db.getLevels().clear();
                 if (t.levels() != null && !t.levels().isEmpty()) {
                     LinkedHashSet<Integer> unique = new LinkedHashSet<>(t.levels());
                     db.getLevels().addAll(unique);
                 }
-
+                
                 db = traitRepository.save(db);
                 traitMap.put(key(t.setName(), t.name()), db);
-
             }
-
+            
+            // 确保所有在 champions 中出现的 traits 都存在于 traitMap 中
+            // 如果某个 trait 只在 champions 中出现而没有在 traits 数组中定义，创建它
             for (String traitName : allTraitNames) {
                 String mapKey = key(setName, traitName);
                 if (!traitMap.containsKey(mapKey)) {
@@ -99,10 +104,11 @@ public class DataImportService {
                 }
             }
 
+            // 2) 准备 Role / Ability 映射（upsert）
             Map<String, Role> roleMap = new HashMap<>();
             Map<String, Ability> abilityMap = new HashMap<>();
 
-            // upsert champions
+            // 3) upsert champions（含 role/ability + 关系）
             for (CdragonParser.RawChampion c : raw.champions()) {
                 Champion db = championRepository.findBySetNameAndName(c.setName(), c.name())
                         .orElseGet(() -> {
@@ -140,6 +146,8 @@ public class DataImportService {
                     db.setAbility(null);
                 }
 
+                // 处理多对多关系：先清空再重建 traits（幂等）
+                // 对于多对多关系，需要替换整个集合以确保正确更新
                 Set<Trait> newTraits = new HashSet<>();
                 if (c.traitNames() != null && !c.traitNames().isEmpty()) {
                     for (String tn : c.traitNames()) {
@@ -163,7 +171,7 @@ public class DataImportService {
                         }
                     }
                 }
-
+                // 替换整个集合以确保多对多关系正确更新
                 db.setTraits(newTraits);
 
                 championRepository.save(db);

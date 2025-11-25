@@ -10,4 +10,12 @@ public class TftBackendApplication {
 		SpringApplication.run(TftBackendApplication.class, args);
 	}
 
+//	@RestController
+//	@RequestMapping("/api")
+//	static class HealthController {
+//		@GetMapping("/health")
+//		public String health() {
+//			return "OK";
+//		}
+//	}
 }

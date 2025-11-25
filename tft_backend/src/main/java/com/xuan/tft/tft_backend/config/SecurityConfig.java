@@ -31,7 +31,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/api/health"
+                                "/api/health",
+                                "/api/comps/preview",  // 预览端点不需要认证
+                                "/api/traits",         // 查询羁绊列表不需要认证
+                                "/api/champions"       // 查询单位列表不需要认证
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

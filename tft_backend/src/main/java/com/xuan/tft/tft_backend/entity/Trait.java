@@ -17,16 +17,14 @@ public class Trait {
     private String setName; // S15 / S16 ...
 
     @Column(nullable = false, length = 100)
-    private String name;    // zh_CN
+    private String name;    // 中文名称
 
     @Column(columnDefinition = "TEXT")
     private String description;
-    
+
+    // 新增：层级（如 [3,5,7]）
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "trait_levels", joinColumns = @JoinColumn(name = "trait_id"),
-            uniqueConstraints = @UniqueConstraint(
-                    name = "uk_trait_level_unique",
-                    columnNames = {"trait_id", "count_required"}))
+    @CollectionTable(name = "trait_levels", joinColumns = @JoinColumn(name = "trait_id"))
     @Column(name = "count_required", nullable = false)
     private List<Integer> levels = new ArrayList<>();
 
